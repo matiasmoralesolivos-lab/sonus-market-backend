@@ -5,12 +5,13 @@ const usuariosRoutes = require('./routes/usuariosRoutes');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
 const { verificarToken } = require('./middlewares/authMiddleware');
-
+const publicacionesRoutes = require('./routes/publicacionesRoutes');
 
 // Middlewares globales
 app.use(cors());
 app.use(express.json());
 app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/publicaciones', publicacionesRoutes);
 app.use('/api', authRoutes);
 
 // Ruta de bienvenida
