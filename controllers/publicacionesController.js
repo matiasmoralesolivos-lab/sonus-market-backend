@@ -106,8 +106,84 @@ const crearPublicacion = async (req, res) => {
   }
 };
 
+// Actualizar una publicación propia
+const actualizarPublicacion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      nombre,
+      descripcion,
+      precio,
+      categoria,
+      stock,
+      imagen_url,
+    } = req.body;
+
+    if (
+      !nombre ||
+      !descripcion ||
+      precio === undefined ||
+      !categoria ||
+      stock === undefined
+    ) {
+      return res.status(400).json({
+        mensaje: 'Todos los campos obligatorios deben estar completos',
+      });
+    }
+
+    if (
+      !Number.isFinite(Number(precio)) ||
+      Number(precio) <= 0 ||
+      !Number.isInteger(Number(stock)) ||
+      Number(stock) < 1
+    ) {
+      return res.status(400).json({
+        mensaje: 'El precio o el stock no son válidos',
+      });
+    }
+
+    const resultado = await pool.query(
+      `UPDATE publicaciones
+       SET nombre = $1,
+           descripcion = $2,
+           precio = $3,
+           categoria = $4,
+           stock = $5,
+           imagen_url = $6
+       WHERE id = $7 AND usuario_id = $8
+       RETURNING *`,
+      [
+        nombre,
+        descripcion,
+        Number(precio),
+        categoria,
+        Number(stock),
+        imagen_url || null,
+        id,
+        req.usuario.id,
+      ]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({
+        mensaje: 'Publicación no encontrada o no tienes permiso para modificarla',
+      });
+    }
+
+    return res.status(200).json(resultado.rows[0]);
+
+  } catch (error) {
+    console.error('Error al actualizar publicación:', error.message);
+
+    return res.status(500).json({
+      mensaje: 'Error interno del servidor',
+    });
+  }
+};
+
 module.exports = {
   obtenerPublicaciones,
   obtenerPublicacion,
   crearPublicacion,
+  actualizarPublicacion,
 };

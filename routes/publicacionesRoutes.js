@@ -5,6 +5,7 @@ const {
   obtenerPublicaciones,
   obtenerPublicacion,
   crearPublicacion,
+  actualizarPublicacion,
 } = require('../controllers/publicacionesController');
 
 const { verificarToken } = require('../middlewares/authMiddleware');
@@ -20,4 +21,8 @@ router.get('/:id', obtenerPublicacion);
 // Crear una publicación (requiere autenticación)
 router.post('/', verificarToken, crearPublicacion);
 
+// Actualizar una publicación propia (requiere autenticación)
+router.put('/:id', verificarToken, actualizarPublicacion);
+
 module.exports = router;
+
