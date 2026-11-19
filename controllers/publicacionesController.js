@@ -4,10 +4,15 @@ const pool = require('../config/db');
 // Obtener todas las publicaciones
 const obtenerPublicaciones = async (req, res) => {
   try {
-    const resultado = await pool.query(
-      `SELECT * FROM publicaciones
-       ORDER BY fecha_creacion DESC`
-    );
+ const resultado = await pool.query(
+  `SELECT
+     p.*,
+     u.nombre AS vendedor_nombre,
+     u.email AS vendedor_email
+   FROM publicaciones p
+   LEFT JOIN usuarios u ON p.usuario_id = u.id
+   ORDER BY p.fecha_creacion DESC`
+);
 
     return res.status(200).json(resultado.rows);
   } catch (error) {
@@ -25,7 +30,13 @@ const obtenerPublicacion = async (req, res) => {
     const { id } = req.params;
 
     const resultado = await pool.query(
-      'SELECT * FROM publicaciones WHERE id = $1',
+      `SELECT
+         p.*,
+         u.nombre AS vendedor_nombre,
+         u.email AS vendedor_email
+       FROM publicaciones p
+       LEFT JOIN usuarios u ON p.usuario_id = u.id
+       WHERE p.id = $1`,
       [id]
     );
 
