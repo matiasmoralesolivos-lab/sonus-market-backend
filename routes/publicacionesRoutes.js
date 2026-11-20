@@ -1,9 +1,9 @@
-
 const express = require('express');
 
 const {
   obtenerPublicaciones,
   obtenerPublicacion,
+  obtenerEtiquetas,
   crearPublicacion,
   actualizarPublicacion,
 } = require('../controllers/publicacionesController');
@@ -15,6 +15,9 @@ const router = express.Router();
 // Consultar todas las publicaciones
 router.get('/', obtenerPublicaciones);
 
+// Consultar catálogo de etiquetas
+router.get('/etiquetas', obtenerEtiquetas);
+
 // Consultar una publicación por ID
 router.get('/:id', obtenerPublicacion);
 
@@ -25,4 +28,3 @@ router.post('/', verificarToken, crearPublicacion);
 router.put('/:id', verificarToken, actualizarPublicacion);
 
 module.exports = router;
-
