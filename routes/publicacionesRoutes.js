@@ -6,6 +6,7 @@ const {
   obtenerEtiquetas,
   crearPublicacion,
   actualizarPublicacion,
+  eliminarPublicacion,
 } = require('../controllers/publicacionesController');
 
 const { verificarToken } = require('../middlewares/authMiddleware');
@@ -26,5 +27,8 @@ router.post('/', verificarToken, crearPublicacion);
 
 // Actualizar una publicación propia (requiere autenticación)
 router.put('/:id', verificarToken, actualizarPublicacion);
+
+// Eliminar una publicación propia (requiere autenticación)
+router.delete('/:id', verificarToken, eliminarPublicacion);
 
 module.exports = router;

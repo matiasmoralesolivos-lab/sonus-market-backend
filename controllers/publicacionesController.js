@@ -371,10 +371,70 @@ const actualizarPublicacion = async (req, res) => {
   }
 };
 
+// Eliminar una publicación propia
+
+const eliminarPublicacion = async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    const { id } = req.params;
+
+    await client.query('BEGIN');
+
+    // Verificar que la publicación pertenece al usuario
+    const resultado = await client.query(
+      `SELECT id
+       FROM publicaciones
+       WHERE id = $1 AND usuario_id = $2
+       FOR UPDATE`,
+      [id, req.usuario.id]
+    );
+
+    if (resultado.rows.length === 0) {
+      await client.query('ROLLBACK');
+
+      return res.status(404).json({
+        mensaje: 'Publicación no encontrada o no tienes permiso para eliminarla',
+      });
+    }
+
+    // Eliminar relaciones con las etiquetas
+    await client.query(
+      `DELETE FROM publicacion_etiquetas
+       WHERE publicacion_id = $1`,
+      [id]
+    );
+
+    // Eliminar la publicación
+    await client.query(
+      `DELETE FROM publicaciones
+       WHERE id = $1 AND usuario_id = $2`,
+      [id, req.usuario.id]
+    );
+
+    await client.query('COMMIT');
+
+    return res.status(200).json({
+      mensaje: 'Publicación eliminada correctamente',
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+
+    console.error('Error al eliminar publicación:', error.message);
+
+    return res.status(500).json({
+      mensaje: 'Error interno del servidor',
+    });
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   obtenerPublicaciones,
   obtenerPublicacion,
   obtenerEtiquetas,
   crearPublicacion,
   actualizarPublicacion,
+  eliminarPublicacion,
 };
